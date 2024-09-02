@@ -2,21 +2,20 @@
 session_start();
 if (isset($_SESSION["user"])) {
   header("Location: exclusive.php");
+  exit();
 }
- ?>
 
- <!DOCTYPE html>
- <html lang="en" dir="ltr">
-   <head>
-     <meta charset="utf-8">
-     <title>Registration Form</title>
-     <link rel="stylesheet" href="decor.css">
-     <script src="https://kit.fontawesome.com/6b22b1e5f6.js" crossorigin="anonymous"></script>
-   </head>
-   <body>
+$hostName = "localhost";
+$dbUser = "root";
+$dbPassword = "";
+$dbName = "hd_register";
+$conn = mysqli_connect($hostName, $dbUser, $dbPassword, $dbName);
+if (!$conn) {
+    die("Something went wrong;");
+}
 
-     <div class="container">
-       <?php
+$errors = array();
+
        if (isset($_POST["submit"])) {
          $fullName = $_POST["fullname"];
          $email = $_POST["email"];
@@ -25,80 +24,100 @@ if (isset($_SESSION["user"])) {
 
          $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-         $errors = array();
+
 
          if (empty($fullName) OR empty($email) OR empty($password) OR empty($passwordRepeat)) {
-           array_push($errors, "All fields are required");
-         }
+           $errors[] = "All fields are required";
+         } else {
          if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-           array_push($errors, "Email is not valid");
+           $errors[] = "Email is not valid";
          }
          if (strlen($password)<8) {
-           array_push($errors, "Password must be at least 8 characters long");
+           $errors[] = "Password must be at least 8 characters long";
          }
          if ($password!==$passwordRepeat) {
-           array_push($errors, "Password doesn't match");
+           $errors[] = "Password doesn't match";
          }
-         require_once "hd-database.php";
-         $sql = "SELECT * FROM users WHERE email = '$email'";
-         $result = mysqli_query($conn, $sql);
+
+         if(count($errors) === 0) {
+         $sql = "SELECT * FROM users WHERE email = ?";
+         $stmt = mysqli_prepare($conn, $sql);
+         mysqli_stmt_bind_param($stmt, "s", $email);
+         mysqli_stmt_execute($stmt);
+         $result = mysqli_stmt_get_result($stmt);
          $rowCount = mysqli_num_rows($result);
          if ($rowCount>0) {
-           array_push($errors,"Email already exists!");
-         }
-         if (count($errors)>0) {
-           foreach ($errors as $error) {
-             echo "<div class='alert alert-danger'>$error</div>";
-           }
-         }else {
+           $errors[] = "Email already exists!";
+         } else {
            $sql = "INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)";
-           $stmt = mysqli_stmt_init($conn);
-           $prepareStmt = mysqli_stmt_prepare($stmt,$sql);
-           if ($prepareStmt) {
-             mysqli_stmt_bind_param($stmt, "sss",$fullName, $email, $passwordHash);
-             mysqli_stmt_execute($stmt);
-             echo "<div class='alert alert-success'>You are registered successfully.</div>";
-           }else{
-             die("Something went wrong");
+           $stmt = mysqli_prepare($conn, $sql);
+           if ($stmt) {
+             mysqli_stmt_bind_param($stmt, "sss", $fullName, $email, $passwordHash);
+             if (mysqli_stmt_execute($stmt)) {
+               echo "<div class= 'alert-success'>You are registered successfully.</div>";
+             } else {
+               $errors[] = "Registration failed, please try again.";
+             }
+           } else {
+             $errors[] = "Something went wrong with the query.";
            }
          }
        }
-
+     }
+         if (count($errors)>0) {
+           foreach ($errors as $error) {
+             echo "<div class= 'alert'>$error</div>";
+           }
+         }
+       }
         ?>
+
+         <!DOCTYPE html>
+         <html lang="en" dir="ltr">
+           <head>
+             <meta charset="utf-8">
+             <title>Registration Form</title>
+             <link rel="stylesheet" href="hd-decor.css">
+             <script src="https://kit.fontawesome.com/6b22b1e5f6.js" crossorigin="anonymous"></script>
+           </head>
+           <body>
+
+             <div class="container">
+
         <div class="form-box">
         <h1>Sign Up</h1>
         <div class="input-group">
         <form action="hd-registration.php" method="post">
 
         <div class="form-group">
-          <input type="text" class="form-control" name="fullname" placeholder="Full Name: ">
           <i class="fa-solid fa-user"></i>
+          <input type="text" class="form-control" name="fullname" placeholder="Full Name: ">
         </div>
 
         <div class="form-group">
-          <input type="text" class="form-control" name="email" placeholder="Email: ">
           <i class="fa-solid fa-envelope"></i>
+          <input type="text" class="form-control" name="email" placeholder="Email: ">
         </div>
 
         <div class="form-group">
+          <i class="fa-solid fa-lock"></i>
           <input type="password" class="form-control" name="password" placeholder="Password: ">
-           <i class="fa-solid fa-lock"></i>
         </div>
 
         <div class="form-group">
-          <input type="text" class="form-control" name="repeat_password" placeholder="Repeat Password: ">
-           <i class="fa-solid fa-lock"></i>
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" class="form-control" name="repeat_password" placeholder="Repeat Password: ">
         </div>
 
         <div class="btn-field">
-          <input type="submit" class="btn btn-primary" name="submit" value="Register">
+          <input type="submit" class="register-btn" name="submit" value="Register">
         </div>
 
     </form>
   </div>
           </div>
     <div>
-      <div>
+      <div class="move">
         <p>Already Registered? <a href="hd-login.php">Login Here</a></p>
       </div>
     </div>

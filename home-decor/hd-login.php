@@ -9,7 +9,7 @@ if (isset($_SESSION["user"])) {
    <head>
      <meta charset="utf-8">
      <title>Login Form</title>
-     <link rel="stylesheet" href="decor.css">
+     <link rel="stylesheet" href="hd-decor.css">
    </head>
    <body>
      <div class="container">
