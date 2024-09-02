@@ -10,10 +10,11 @@ if (isset($_SESSION["user"])) {
    <head>
      <meta charset="utf-8">
      <title>Registration Form</title>
-     <link rel="stylesheet" href="register.css">
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+     <link rel="stylesheet" href="decor.css">
+     <script src="https://kit.fontawesome.com/6b22b1e5f6.js" crossorigin="anonymous"></script>
    </head>
    <body>
+
      <div class="container">
        <?php
        if (isset($_POST["submit"])) {
@@ -64,27 +65,41 @@ if (isset($_SESSION["user"])) {
        }
 
         ?>
+        <div class="form-box">
+        <h1>Sign Up</h1>
+        <div class="input-group">
         <form action="hd-registration.php" method="post">
+
         <div class="form-group">
           <input type="text" class="form-control" name="fullname" placeholder="Full Name: ">
+          <i class="fa-solid fa-user"></i>
         </div>
+
         <div class="form-group">
           <input type="text" class="form-control" name="email" placeholder="Email: ">
+          <i class="fa-solid fa-envelope"></i>
         </div>
+
         <div class="form-group">
           <input type="password" class="form-control" name="password" placeholder="Password: ">
+           <i class="fa-solid fa-lock"></i>
         </div>
+
         <div class="form-group">
           <input type="text" class="form-control" name="repeat_password" placeholder="Repeat Password: ">
+           <i class="fa-solid fa-lock"></i>
         </div>
-        <div class="form-group">
-          <input type="submit" class="btn btn-primary" name="submit" value="Register">
 
+        <div class="btn-field">
+          <input type="submit" class="btn btn-primary" name="submit" value="Register">
         </div>
+
     </form>
+  </div>
+          </div>
     <div>
       <div>
-        <p>Already Registered <a href="hd-login.php">Login Here</a></p>
+        <p>Already Registered? <a href="hd-login.php">Login Here</a></p>
       </div>
     </div>
   </div>
